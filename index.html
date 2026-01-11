@@ -5,16 +5,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>flappy Bird</title>
-    <style></style>
+    <style>
+        #canvas {
+            height:900px;
+            width: 1600px;
+            border: 2px solid black;
+
+        }
+    </style>
 
 </head>
 
 <body>
-
+    <canvas id="canvas"></canvas>
 
     <script>
+        
+        
+        async function main() {
+            console.log("main excuted");
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+
+            let y = 0;
+            let bird_vel = 0;
+            let acc = 0.005;
+            
+            let t = 0;
+            
+            ctx.fillRect(1, 1, 30,30);
+            for(let i = 0 ; i<10000 ; i++){
+                bird_vel = bird_vel + acc;
+                y = y + bird_vel
+                ctx.clearRect(0,0,1600,900);
+                ctx.fillRect(10, y, 30,30);
+        
+                await new Promise((r) => setTimeout(r,0.033));
+            }
+
+
+            
+            
+
+            
+        }
+            
+        main();
+
+
 
     </script>
 </body>
-
 </html>
