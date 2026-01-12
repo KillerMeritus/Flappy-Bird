@@ -45,24 +45,34 @@
                 bird_vel = bird_vel + acc * dt;
                 y = y + bird_vel * dt
                 ctx.clearRect(0, 0, 1600, 900);
-                ctx.fillRect(10, y, 200,200);
+                ctx.fillRect(100, y, 200,200);
+                // console.log(time);
 
 
                 // await new Promise((r) => setTimeout(r,0.033));
-
-
+                
+                
+                // console.log(y)
+                // console.log(parseInt(y));
+                if(690 < parseInt(y) && parseInt(y) < 750){
+                    bird_vel = 0;
+                    y = 0;
+                   
+                    
+                    console.log("box on ground")
+                }
                 requestAnimationFrame(framefunction)
-
+                
             }
-
+            
             requestAnimationFrame(framefunction)
             window.addEventListener('keydown', (e) => {
                 if(e.key == " " || e.key == "ArrowUp"){
                     bird_vel = -400;
                 }
             })
-
-
+            
+            
         }
         main();
 
