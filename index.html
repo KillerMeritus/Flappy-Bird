@@ -29,10 +29,14 @@
             Canvas.width = 1600;
             Canvas.height = 900;
             
-            let y = 0;
+            //bird Parameters
+            let y = 400;
             let bird_vel = 0;
             let acc = 500;
 
+            //pillar parameters
+            let x = 1600;
+            let pillar_vel = 30;
 
             let lastTime = 0;
 
@@ -41,23 +45,32 @@
                 // ctx.fillRect(1, 1, 30, 30);
                 let dt = (time-lastTime)/1000;
                 lastTime = time;
-
+                
+                //Bird Physics
                 bird_vel = bird_vel + acc * dt;
                 y = y + bird_vel * dt
                 ctx.clearRect(0, 0, 1600, 900);
-                ctx.fillRect(100, y, 200,200);
+                ctx.fillRect(100, y, 150,150);
                 // console.log(time);
-
-
+                
+                //Box Physics
+                x = x - pillar_vel;
+                create_Piller()
+                // ctx.fillRect(x,0,200,400)
+                // ctx.fillRect(x,700,200,400)
+                
+                
+                
                 // await new Promise((r) => setTimeout(r,0.033));
                 
                 
                 // console.log(y)
                 // console.log(parseInt(y));
-                if(690 < parseInt(y) && parseInt(y) < 750){
-                    bird_vel = 0;
-                    y = 0;
-                   
+                if(700 < parseInt(y) && parseInt(y) < 750){
+                    // bird_vel = -500;
+                    // y = 0;
+                    location.reload()
+                    
                     
                     console.log("box on ground")
                 }
@@ -71,7 +84,15 @@
                     bird_vel = -400;
                 }
             })
+
             
+            console.log(R_height)
+            function create_Piller(){
+                let R_height = Math.floor(Math.random() * (400)) 
+                ctx.fillRect(x,0,200,R_height)
+                ctx.fillRect(x,700,200,700-R_height)
+
+            }
             
         }
         main();
