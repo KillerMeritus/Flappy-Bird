@@ -18,6 +18,7 @@
 
 <body>
     <canvas id="canvas"></canvas>
+    <h1 id="score_card">Score : 0</h1>
 
     <script>
 
@@ -32,77 +33,89 @@
             //bird Parameters
             let y = 400;
             let bird_vel = 0;
-            let acc = 3000;
+            let acc = 5000;
             let jump_velocity = 1000; 
 
             //pillar parameters
             let x = 1600;
             let pillar_vel = 20;
             let pillars = []
-            let p_acc = 50;
+            let p_acc = 0;
             let lastTime = 0;
             let lastSpawnTime = 0
             let spawnInterval = 500
 
+            //Game Parameters
+            let score = 0;
+
+
+
             function framefunction(time) {
-                // ctx.fillRect(1, 1, 30, 30);
+               
                 let dt = (time - lastTime) / 1000;
                 lastTime = time;
 
-                //Bird Physics
+                //Bird Physics and drawing
                 bird_vel = bird_vel + acc * dt;
                 y = y + bird_vel * dt
                 ctx.clearRect(0, 0, 1600, 900);
                 ctx.fillRect(100, y, 150, 150);
-                // console.log(time);
-
-                //Box Physics
-                // x = x - pillar_vel;
-                // create_Piller()
-                // ctx.fillRect(x,0,200,400)
-                // ctx.fillRect(x,700,200,400)
-
+               
+                if (750 < parseInt(y) && parseInt(y) < 900) {
+                    // bird_vel = -500;
+                    gameover()
+                    location.reload()
+                }
+                //pillers physics and drawing
                 pillars.forEach((pillar) => {
-                    console.log("for each exucuted");
-                    // pillar_vel = pillar_vel + p_acc*dt ;
+                            
+                    pillar_vel = pillar_vel + p_acc*dt ;
                     pillar.x -= pillar_vel;
                     ctx.fillRect(pillar.x, 0, 200, pillar.height)
                     ctx.fillRect(pillar.x, pillar.height + 450, 200, 900 - (pillar.height + 450))
-
-
                 })
 
-                if (time - lastSpawnTime > spawnInterval) {
-                   
+
+                // Score and Gameover Logic
+                pillars.forEach((pillar) => {
+                    if( -100 <=pillar.x && pillar.x <= 100){
+                        if(pillar.height < y && y < pillar.height + 450){
+                            if(pillar.x  == 100){
+                                score++;
+                                console.log(score);
+                                score_card.textContent = `Score: ${score}`;
+                                
+                            } 
+                        }else{
+                            gameover()
+                            // console.log("game over");
+
+                        }
+                    }
+                })
+
+                if (time - lastSpawnTime > spawnInterval) {  
                     create_Piller()
                     lastSpawnTime = time
                 }
 
 
 
-                // await new Promise((r) => setTimeout(r,0.033));
-
-
-                // console.log(y)
-                // console.log(parseInt(y));
-                if (750 < parseInt(y) && parseInt(y) < 900) {
-                    // bird_vel = -500;
-                    // y = 0;
-                    location.reload()
-
-
-                    console.log("box on ground")
-                }
+           
                 requestAnimationFrame(framefunction)
 
             }
 
             requestAnimationFrame(framefunction)
+
+
+            //Supporting functions and Events
             window.addEventListener('keydown', (e) => {
                 if (e.key == " " || e.key == "ArrowUp") {
                     bird_vel = -(jump_velocity);
                 }
             })
+
 
 
 
@@ -116,10 +129,22 @@
                     gap: 450
                 }
                 pillars.push(pillar);
-
             }
 
+            function gameover() {
+                bird_vel = 0;
+                acc = 0;
+                pillar_vel = 0;
+                p_acc=0;
+                    
+                
+            }
+            let score_card = document.querySelector('#score_card');
+            
+
         }
+
+    
         main();
 
 
