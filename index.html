@@ -7,7 +7,7 @@
     <title>flappy Bird</title>
     <style>
         #canvas {
-            height:900px;
+            height: 900px;
             width: 1600px;
             border: 2px solid black;
 
@@ -20,40 +20,55 @@
     <canvas id="canvas"></canvas>
 
     <script>
-        
-        
+
+
         async function main() {
             console.log("main excuted");
-            const canvas = document.getElementById("canvas");
-            const ctx = canvas.getContext("2d");
-
+            const Canvas = document.getElementById("canvas");
+            const ctx = Canvas.getContext("2d");
+            Canvas.width = 1600;
+            Canvas.height = 900;
+            
             let y = 0;
             let bird_vel = 0;
-            let acc = 0.005;
-            
-            let t = 0;
-            
-            ctx.fillRect(1, 1, 30,30);
-            for(let i = 0 ; i<10000 ; i++){
-                bird_vel = bird_vel + acc;
-                y = y + bird_vel
-                ctx.clearRect(0,0,1600,900);
-                ctx.fillRect(10, y, 30,30);
-        
-                await new Promise((r) => setTimeout(r,0.033));
+            let acc = 500;
+
+
+            let lastTime = 0;
+
+
+            function framefunction(time) {
+                // ctx.fillRect(1, 1, 30, 30);
+                let dt = (time-lastTime)/1000;
+                lastTime = time;
+
+                bird_vel = bird_vel + acc * dt;
+                y = y + bird_vel * dt
+                ctx.clearRect(0, 0, 1600, 900);
+                ctx.fillRect(10, y, 200,200);
+
+
+                // await new Promise((r) => setTimeout(r,0.033));
+
+
+                requestAnimationFrame(framefunction)
+
             }
 
+            requestAnimationFrame(framefunction)
+            window.addEventListener('keydown', (e) => {
+                if(e.key == " " || e.key == "ArrowUp"){
+                    bird_vel = -400;
+                }
+            })
 
-            
-            
 
-            
         }
-            
         main();
 
 
 
     </script>
 </body>
+
 </html>
