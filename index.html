@@ -32,8 +32,8 @@
 
             //bird Parameters
             let y = 400;
-            let bird_vel = 0;
-            let acc = 5000;
+            let bird_vel = 100 ;
+            let acc = 2000;
             let jump_velocity = 1000; 
 
             //pillar parameters
@@ -43,7 +43,7 @@
             let p_acc = 0;
             let lastTime = 0;
             let lastSpawnTime = 0
-            let spawnInterval = 500
+            let spawnInterval = 750
 
             //Game Parameters
             let score = 0;
@@ -64,7 +64,7 @@
                 if (750 < parseInt(y) && parseInt(y) < 900) {
                     // bird_vel = -500;
                     gameover()
-                    location.reload()
+                    // location.reload()
                 }
                 //pillers physics and drawing
                 pillars.forEach((pillar) => {
@@ -79,7 +79,7 @@
                 // Score and Gameover Logic
                 pillars.forEach((pillar) => {
                     if( -100 <=pillar.x && pillar.x <= 100){
-                        if(pillar.height < y && y < pillar.height + 450){
+                        if(pillar.height < y && y < pillar.height + 300){
                             if(pillar.x  == 100){
                                 score++;
                                 console.log(score);
@@ -136,6 +136,7 @@
                 acc = 0;
                 pillar_vel = 0;
                 p_acc=0;
+                jump_velocity = 0; 
                     
                 
             }
