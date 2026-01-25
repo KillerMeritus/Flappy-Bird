@@ -39,20 +39,6 @@ A browser-based Flappy Bird clone built using HTML5 Canvas and Vanilla JavaScrip
 - LocalStorage
 - Event handling
 
----
-
-## 📁 Project Structure
-
-Flappy-Bird/
-├── index.html
-├── mixkit-bonus-earned-in-video-game-2058.wav
-├── mixkit-player-jumping-in-a-video-game-2043.wav
-├── mixkit-player-losing-or-failing-2042.wav
-└── README.md
-
-
-
----
 
 ## ⚙️ How to Run
 
