@@ -3,152 +3,318 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>flappy Bird</title>
-    <style>
-        #canvas {
-            height: 900px;
-            width: 1600px;
-            border: 2px solid black;
+    <title>Flappy Bird Structure</title>
 
+    <style>
+        canvas {
+            border: 2px solid black;
         }
     </style>
-
 </head>
 
 <body>
-    <canvas id="canvas"></canvas>
-    <h1 id="score_card">Score : 0</h1>
+
+    <canvas id="canvas" width="1600" height="900"></canvas>
+    <h1 id="score_card">Score: 0</h1>
 
     <script>
 
+        //////////////////////////////////////////////////////
+        // GLOBAL VARIABLES
+        //////////////////////////////////////////////////////
 
-        async function main() {
-            console.log("main excuted");
-            const Canvas = document.getElementById("canvas");
-            const ctx = Canvas.getContext("2d");
-            Canvas.width = 1600;
-            Canvas.height = 900;
+        let canvas, ctx;
 
-            //bird Parameters
-            let y = 400;
-            let bird_vel = 100 ;
-            let acc = 2000;
-            let jump_velocity = 1000; 
+        let lastTime = 0;
+        let gameState = "playing";
 
-            //pillar parameters
-            let x = 1600;
-            let pillar_vel = 20;
-            let pillars = []
-            let p_acc = 0;
-            let lastTime = 0;
-            let lastSpawnTime = 0
-            let spawnInterval = 750
+        let score = 0;
+        let scoreCard = document.getElementById("score_card");
+        let highScore = 0;
 
-            //Game Parameters
-            let score = 0;
+        //////////////////////////////////////////////////////
+        // GAME OBJECTS
+        //////////////////////////////////////////////////////
+
+        let bird = {
+            x: 100,
+            y: 300,
+            length: 100,
+            width: 60,
+            vel: 0,
+            gravity: 2000,
+            jump: -700
+        };
+
+        let pillars = [];
+
+        let pillarSpeed = 600;
+        let spawnInterval = 800;
+        let lastSpawnTime = 0;
+
+        //////////////////////////////////////////////////////
+        // INIT
+        //////////////////////////////////////////////////////
+
+        function init() {
+            canvas = document.getElementById("canvas");
+            ctx = canvas.getContext("2d");
+
+
+            highScore = Number(localStorage.getItem("highScore")) || 0;
+            scoreCard.textContent = `Score: 0 | High: ${highScore}`;
+
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        //////////////////////////////////////////////////////
+        // GAME LOOP
+        //////////////////////////////////////////////////////
 
 
 
-            function framefunction(time) {
-               
-                let dt = (time - lastTime) / 1000;
+        function gameLoop(time) {
+
+            if (!lastTime) {
                 lastTime = time;
-
-                //Bird Physics and drawing
-                bird_vel = bird_vel + acc * dt;
-                y = y + bird_vel * dt
-                ctx.clearRect(0, 0, 1600, 900);
-                ctx.fillRect(100, y, 150, 150);
-               
-                if (750 < parseInt(y) && parseInt(y) < 900) {
-                    // bird_vel = -500;
-                    gameover()
-                    // location.reload()
-                }
-                //pillers physics and drawing
-                pillars.forEach((pillar) => {
-                            
-                    pillar_vel = pillar_vel + p_acc*dt ;
-                    pillar.x -= pillar_vel;
-                    ctx.fillRect(pillar.x, 0, 200, pillar.height)
-                    ctx.fillRect(pillar.x, pillar.height + 450, 200, 900 - (pillar.height + 450))
-                })
-
-
-                // Score and Gameover Logic
-                pillars.forEach((pillar) => {
-                    if( -100 <=pillar.x && pillar.x <= 100){
-                        if(pillar.height < y && y < pillar.height + 300){
-                            if(pillar.x  == 100){
-                                score++;
-                                console.log(score);
-                                score_card.textContent = `Score: ${score}`;
-                                
-                            } 
-                        }else{
-                            gameover()
-                            // console.log("game over");
-
-                        }
-                    }
-                })
-
-                if (time - lastSpawnTime > spawnInterval) {  
-                    create_Piller()
-                    lastSpawnTime = time
-                }
-
-
-
-           
-                requestAnimationFrame(framefunction)
-
+                requestAnimationFrame(gameLoop);
+                return;
             }
 
-            requestAnimationFrame(framefunction)
+            let dt = (time - lastTime) / 1000;
+            lastTime = time;
 
-
-            //Supporting functions and Events
-            window.addEventListener('keydown', (e) => {
-                if (e.key == " " || e.key == "ArrowUp") {
-                    bird_vel = -(jump_velocity);
-                }
-            })
-
-
-
-
-            function create_Piller() {
-                let R_height = Math.floor(Math.random() * (450))
-                // ctx.fillRect(x, 0, 200, R_height)
-                // ctx.fillRect(x, R_height + 450, 200, 900 - (R_height + 450))
-                let pillar = {
-                    x: 1600,
-                    height: R_height,
-                    gap: 450
-                }
-                pillars.push(pillar);
+            if (gameState === "playing") {
+                update(dt, time);
             }
 
-            function gameover() {
-                bird_vel = 0;
-                acc = 0;
-                pillar_vel = 0;
-                p_acc=0;
-                jump_velocity = 0; 
-                    
-                
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+
+
+        //////////////////////////////////////////////////////
+        // UPDATE
+        //////////////////////////////////////////////////////
+
+        function update(dt, time) {
+            updateBird(dt);
+            updatePillars(dt);
+            spawnPillars(time);
+            checkCollision(dt);
+            updateScore();
+        }
+
+        //////////////////////////////////////////////////////
+        // DRAW
+        //////////////////////////////////////////////////////
+
+        function draw() {
+            clearCanvas();
+            drawBird();
+            drawPillars();
+
+            if (gameState === "start") {
+                ctx.font = "60px Arial";
+                ctx.fillText("FLAPPY BIRD", 550, 350);
+                ctx.font = "40px Arial";
+                ctx.fillText("Press SPACE to START", 530, 420);
             }
-            let score_card = document.querySelector('#score_card');
-            
+
+            if (gameState === "over") {
+                ctx.font = "60px Arial";
+                ctx.fillText("GAME OVER", 600, 350);
+                ctx.font = "40px Arial";
+                ctx.fillText("Press R to Restart", 620, 420);
+            }
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, 16000, 900);
+        }
+
+
+
+        //////////////////////////////////////////////////////
+        // BIRD LOGIC
+        //////////////////////////////////////////////////////
+
+        function updateBird(dt) {
+            bird.vel += bird.gravity * dt;
+            bird.y += bird.vel * dt;
+
+
 
         }
 
-    
-        main();
+        function drawBird() {
+            ctx.fillRect(bird.x, bird.y, bird.width, bird.length);
+        }
+        //////////////////////////////////////////////////////
+        // PILLARS
+        //////////////////////////////////////////////////////
+
+        function spawnPillars(time) {
+            if (time - lastSpawnTime > spawnInterval) {
+                let height = Math.random() * 400 + 100;
+
+                pillars.push({
+                    x: canvas.width,
+                    height: height,
+                    gap: 300,
+                    passed: false
+                });
+
+                lastSpawnTime = time;
+            }
+        }
+
+        function updatePillars(dt) {
+            pillars.forEach(p => {
+                p.x -= pillarSpeed * dt;
+            });
 
 
+            pillars = pillars.filter(p => p.x + 120 > 0);
+        }
+
+        function drawPillars() {
+            pillars.forEach(p => {
+                // top
+                ctx.fillRect(p.x, 0, 120, p.height);
+
+                // bottom
+                ctx.fillRect(
+                    p.x,
+                    p.height + p.gap,
+                    120,
+                    canvas.height - (p.height + p.gap)
+                );
+            });
+        }
+
+        //////////////////////////////////////////////////////////
+        ///// Collisions
+        /////////////////////////////////////////////////////////
+        function checkCollision(dt) {
+            borderCollision();
+            pillarCollision();
+
+
+        }
+
+        // ground collision
+        function borderCollision() {
+            if (bird.y + bird.length > canvas.height) {
+                bird.y = canvas.height - bird.length;
+                gameOver();
+            }
+            if (bird.y < 0) {
+                gameOver();
+            }
+        }
+
+        // Pillar collision
+        function pillarCollision() {
+            let birdLeft = bird.x;
+            let birdRight = bird.x + bird.width;
+            let birdTop = bird.y;
+            let birdBottom = bird.y + bird.length;
+
+
+            pillars.forEach((p) => {
+                let P_left = p.x
+                let P_right = p.x + 120
+                let P_UpperTop = 0
+                let P_Upperbottom = p.height
+                let P_LowerTop = p.height + p.gap
+                let P_Lowerbotton = canvas.height
+
+                if ((birdRight > P_left && birdLeft < P_right) &&
+                    ((birdTop < P_Upperbottom && birdBottom > P_UpperTop) || (birdBottom > P_LowerTop && birdTop < P_Lowerbotton))) {
+                    gameOver();
+                }
+
+            })
+
+        }
+
+        /////////////////////////////////////////////////////
+        //// Score 
+        /////////////////////////////////////////////////////
+        function updateScore() {
+            pillars.forEach(p => {
+                if (!p.passed && p.x + 120 < bird.x) {
+                    p.passed = true;
+                    score++;
+                    scoreCard.textContent = `Score: ${score} | High: ${highScore}`;
+
+                }
+            });
+        }
+
+
+
+
+
+        //////////////////////////////////////////////////////
+        // GAME OVER And Restart
+        //////////////////////////////////////////////////////
+
+        function gameOver() {
+            gameState = "over";
+            console.log("Game Over");
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem("highScore", highScore);
+            }
+
+        }
+
+        function resetGame() {
+            bird.y = 300;
+            bird.vel = 0;
+
+            pillars = [];
+            score = 0;
+            scoreCard.textContent = `Score: ${score} | High: ${highScore}`;
+
+            lastTime = 0;
+
+        }
+
+
+        //////////////////////////////////////////////////////
+        // INPUT
+        //////////////////////////////////////////////////////
+
+        window.addEventListener("keydown", (e) => {
+            if (e.code === "Space") {
+
+                if (gameState === "start") {
+                    gameState = "playing";
+                    bird.vel = bird.jump;
+                }
+
+                else if (gameState === "playing") {
+                    bird.vel = bird.jump;
+                }
+            }
+
+            if (e.code === "KeyR" && gameState === "over") {
+                resetGame();
+                gameState = "start";
+            }
+        });
+
+        //////////////////////////////////////////////////////
+        // START
+        //////////////////////////////////////////////////////
+
+        init();
 
     </script>
 </body>
